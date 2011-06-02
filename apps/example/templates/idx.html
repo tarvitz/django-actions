@@ -1,13 +1,11 @@
 {% extends "base.html" %} {% load actiontags %}
 {% block content %}
     {% if posts %}
-    {% if perms.example.delete_post or perms.example.change_post %} 
+	{% get_action_list for 'example.post' as actions with user %}
+    {% if actions %} 
         <form action='{% url url_act 'example.post' %}' method='post' id='id_action_posts'>
         {% csrf_token %}
-		{% get_action_list for 'example.post' as actions with user %}
-		{% if actions %}{{ actions|safe }}{% endif %}
-		{# get_actions_here #}
-		<input type='hidden' name='next' id='id_next' value='' />
+		{% show_actions actions %}
     {% endif %}
         {% for p in posts %}
             <li>{% if perms.example.delete_post or perms.example.change_post %}
@@ -20,7 +18,7 @@
                 </div>
             </li>
         {% endfor %}
-    {% if perms.example.delete_post or perms.example.change_post %} 
+    {% if actions %} 
         <input type='submit' value='submit'>
     </form>
     {% endif %}

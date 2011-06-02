@@ -10,6 +10,7 @@ def act(request, app_n_model):
     """ execute chosen action """
     ct = get_content_type_or_404(app_n_model)
     app, model = app_n_model.split('.')
+    referer = request.META.get('HTTP_REFERER', '/')
     if request.method == 'POST':
         qset = ct.model_class().objects.filter(pk__in=(request.POST.getlist('items')))
         formclass = action_formset(request, qset, ct.model_class())
@@ -17,8 +18,15 @@ def act(request, app_n_model):
         if form.is_valid():
             #items = ct.model_class().objects.filter(pk__in=(request.POST.get('items', None)))
             qset = form.act(form.cleaned_data['action'], form.cleaned_data['items'])
-            if 'response' in qset: return qset['response']
-            return HttpResponseRedirect('/success')
+            if 'response' in qset: 
+                request.session['ref'] = request.META.get('HTTP_REFERER', '/')
+                request.session.save()
+                return qset['response']
+            else:
+                ref = request.session.get('ref', '/')
+                if 'ref' in request.session: del request.session['ref']
+                request.session.save()
+                return HttpResponseRedirect(ref)
         else:       
-            return HttpResponseRedirect('/failed')
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+            return HttpResponseRedirect(referer)
+    return HttpResponseRedirect(referer)
