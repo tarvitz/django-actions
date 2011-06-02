@@ -26,3 +26,10 @@ def index(request):
         context_instance=RequestContext(request))
     return render_to_response(template, {'posts': posts, 'form': form},
         context_instance=RequestContext(request))
+
+def idx(request):
+    template = 'idx.html'
+    posts = Post.objects.all()
+    return render_to_response(template, {'posts': posts},
+        context_instance=RequestContext(request))
+
