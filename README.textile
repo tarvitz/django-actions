@@ -17,7 +17,7 @@ from apps.files.actions import force_delete_action
 class File(models.Model):	
 	title = models.CharField('Title', max_length=128)
 	file = models.FileField(upload_to='media/files')
-	actions = [force_delete_action, ]@
+	actions = [force_delete_action, ]
 </code></pre>
 
 **+View (apps.files.view)+**:
