@@ -15,16 +15,14 @@ class GetActionListNode(Node):
         if ct:
             model_class = ct.model_class()
             _actions = []
-            ret = '<option value="None">-----</option>'
             for x in range(0, len(model_class.actions)):
                 if hasattr(model_class.actions[x], 'has_perms'):
                     if user.has_perms(model_class.actions[x].has_perms):
-                        ret += u'\n<option value="%s">%s</option>' % (x,
-                            model_class.actions[x].short_description)
+                        _actions.append((x,
+                            model_class.actions[x].short_description))
                 else:
-                    ret += u'\n<option value="%s">%s</option>' % (x,
-                        model_class.actions[x].short_description)
-            context[self.varname] = "<select name='action' id='id_action'>\n%s\n</select>" % ret
+                    _actions.append((x, model_class.actions[x].short_description))
+            context[self.varname] = _actions
             return ''
             
         else:
@@ -41,3 +39,6 @@ def get_action_list(parser, token):
         raise TemplateSyntaxError, "USE {% get_action_list for 'app.model' as varname %}" 
     return GetActionListNode(bits[2], bits[4])
 
+@register.inclusion_tag('actions_select.html')
+def show_actions(actions):
+    return {'actions': actions}
