@@ -17,7 +17,7 @@ from apps.files.actions import force_delete_action
 class File(models.Model):	
 	title = models.CharField('Title', max_length=128)
 	file = models.FileField(upload_to='media/files')
-	actions = [force_delete_action, ]
+	actions = [force_delete_action,]
 </code></pre>
 
 **+View (apps.files.view)+**:
@@ -52,6 +52,34 @@ def force_delete_action(request, qset, model, **kwargs):
 force_delete_action.short_description = 'force delete files'
 </code></pre>
 
+**+template:+**
+
+<pre><code>
+{% extends "base.html" }
+{% block content %}
+	{% if files %}
+		{% if perms.files.delete_file or perms.files.change_file %}
+			<form action='.' method='post'>
+			{% comment %} you may also use {{ form.as_ul }}
+			but first you should alter apps.actions.forms and
+			set items widget to MultipleHiddenInput()
+			{% endcomment %}
+			{{ form.action.errors }}
+			{{ form.action }}
+			<!-- you can paste it anywhere you want to -->
+			<input type='submit' value='submit'>
+		{% endif %}
+		{% for f in files %}
+			<li>
+			{% if perms.files.delete_file or perms.files.change_file %}
+				<input type='checkbox' name='items' value='{{ f.id }}'>
+			{% endif %}
+			<a href="{{ f.get_absolute_url }}">{{ f.name }}</a>
+			</li>
+		{% endfor %}
+	{% endif %}
+{% endblock %}
+</pre><code>
 
 h2. Russian
 
