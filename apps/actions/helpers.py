@@ -17,3 +17,9 @@ def get_content_type_or_None(obj):
         return get_content_type(obj)
     except:
         return None
+
+def parse_perms(perms, app, model):
+    _perms = []
+    for p in perms:
+        _perms.append(p.format(app=app, model=model))
+    return _perms

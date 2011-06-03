@@ -18,7 +18,5 @@ class Post(models.Model):
     content = models.TextField(_('Content'), max_length=10240)
     author = models.ForeignKey(User)
     ip_addr = models.IPAddressField(_('IP address'))
-    
-    common_delete_action.has_perms = ['example.delete_post', ]
     actions = [common_delete_action, change_post_action]
     __unicode__ = lambda s: s.title

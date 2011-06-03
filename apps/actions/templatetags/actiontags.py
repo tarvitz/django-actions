@@ -1,6 +1,7 @@
 # coding: utf8
 from django.template import Library, Node, TemplateSyntaxError
 from apps.actions.helpers import get_content_type_or_None
+from apps.actions.helpers import parse_perms
 
 register = Library()
 
@@ -10,14 +11,16 @@ class GetActionListNode(Node):
         self.varname = varname
     
     def render(self, context):
+        app, model = self.app_n_model[1:-1].split('.')
         user = context['user']
         ct = get_content_type_or_None(self.app_n_model[1:-1])
         if ct:
             model_class = ct.model_class()
             _actions = []
             for x in range(0, len(model_class.actions)):
-                if hasattr(model_class.actions[x], 'has_perms'):
-                    if user.has_perms(model_class.actions[x].has_perms):
+                if hasattr(model_class.actions[x], 'has_perms'): 
+                    perms = [p.format(app=app, model=model) for p in model_class.actions[x].has_perms]
+                    if user.has_perms(perms):
                         _actions.append((x,
                             model_class.actions[x].short_description))
                 else:
