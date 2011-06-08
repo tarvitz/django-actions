@@ -2,90 +2,75 @@ h2. English
 
 h3. What is the django-action?
 
-**Django-action** is a small and simple application which would help you to implement actions similar to django.contrib.admin case for your custom tasks outside django admin. Also it provides custom form support if you would like to change some data for the chosen queryset instances.
+**Django-action** is a small and simple application which would help you to implement actions similar to django.contrib.admin case for your custom tasks outside django admin. Also it provides custom form support if you would like to change some data for the queryset instances.
 
 h3. Fast use
 
 (sample with approval and custom forms you will find withing example app into the repository)
 
 **+Fast model instances deletion (without form's approval)+:**
-%{color: red }Model (apps.files.model)%:
+
+**+Model+**:
 
 <pre><code>
 from django.db import models
 from apps.files.actions import force_delete_action
-class File(models.Model):	
-	title = models.CharField('Title', max_length=128)
-	file = models.FileField(upload_to='media/files')
-	actions = [force_delete_action,]
-</code></pre>
-
-**+View (apps.files.view)+**:
-
-<pre><code>
-from apps.actions.forms import action_formset
-from django.template import RequestContext
-from django.shortcuts import render_to_response
-def index_files(request):
-	files = File.objects.all()
-	formclass = action_formset(request, files, File)
-	form = formclass(request.POST or None)
-	if request.method == 'POST':
-		if form.is_valid():
-			qset = form.act(form.cleaned_data['action'],
-				form.cleaned_data['items'])
-			if 'response' in qset: return qset['response']
-			return HttpResponseRedirect('/files') #for your choice
-	return render_to_response('files.html',
-		{'files': files, 'form': form},
-		context_instance=RequestContext(request))
+class File(models.Model):    
+    title = models.CharField('Title', max_length=128)
+    file = models.FileField(upload_to='media/files')
+    actions = [force_delete_action, ]
 </code></pre>
 
 **+django-action (apps.files.actions):+**
 
 <pre><code>
 def force_delete_action(request, qset, model, **kwargs):
-	for q in qset:
-		q.file.delete() #deletes file
-		q.delete() #deletes instance
-	return {'qset': qset}
+    for q in qset:
+        q.file.delete() #deletes file
+        q.delete() #deletes instance
+    return {'qset': qset}
 force_delete_action.short_description = 'force delete files'
 </code></pre>
 
-**+template:+**
+**+Template+**:
 
 <pre><code>
-{% extends "base.html" }
+{% extends "base.html" %} {% load actiontags %}
 {% block content %}
-	{% if files %}
-		{% if perms.files.delete_file or perms.files.change_file %}
-			<form action='.' method='post'>
-			{% comment %} you may also use {{ form.as_ul }}
-			but first you should alter apps.actions.forms and
-			set items widget to MultipleHiddenInput()
-			{% endcomment %}
-			{{ form.action.errors }}
-			{{ form.action }}
-			<!-- you can paste it anywhere you want to -->
-			<input type='submit' value='submit'>
-		{% endif %}
-		{% for f in files %}
-			<li>
-			{% if perms.files.delete_file or perms.files.change_file %}
-				<input type='checkbox' name='items' value='{{ f.id }}'>
-			{% endif %}
-			<a href="{{ f.get_absolute_url }}">{{ f.name }}</a>
-			</li>
-		{% endfor %}
-	{% endif %}
+    {% if posts %}
+    {# {% get_action_list for 'example.post' as actions %} #} {# works as well as listed below #}
+    {% get_action_list for posts as actions %}
+    {% if actions %}
+        <form action='{% url url_act actions.action %}' method='post' id='id_action_posts'>
+        {% csrf_token %}
+        {% show_actions actions.object_list %}
+    {% endif %}
+        {% for p in posts %}
+            <li>{% if actions.object_list %}
+                <input name='items' value='{{ p.id }}' type='checkbox' class='void'>
+                {% endif %}
+                {{ p.title }}: {{ p.category }}
+                <div class='content'>
+                    {{ p.content }}
+                <div class='author'>{{ p.author }} ({{ p.ip_addr }})</div>
+                </div>
+            </li>
+        {% endfor %}
+    {% if actions %}
+        <input type='submit' value='submit'>
+    </form>
+    {% endif %}
+    {% else %}
+        <h3>It might be usefull to add some posts ;), don't you find it?</h3>
+    {% endif %}
 {% endblock %}
-</pre><code>
+</code></pre>
 
 h2. Russian
 
 h3. Что такое django-action?
 
-**Django-action** - небольшое приложение, которое повторяет возможности actions django.contrib.admin вне django админки. Также оно обеспечивает поддержку внешней формы, если вы хотите изменить какие-нибудь данные для выбранных объектов.
+**Django-action** - небольшое приложение, которое повторяет возможности actions django.contrib.admin вне django админки.
 
 h3. Использование
 

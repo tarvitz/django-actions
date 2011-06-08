@@ -1,28 +1,92 @@
 {% extends "base.html" %}
 {% block content %}
-    {% if posts %}
-    {% if perms.actions.delete_post or perms.actions.change_post %} 
-        <form action='.' method='post' id='id_action_posts'>
-        {% csrf_token %}
-        {{ form.action.errors }}
-        {{ form.action }}
-    {% endif %}
-        {% for p in posts %}
-            <li>{% if perms.actions.delete_post or perms.actions.change_post %}
-                <input name='items' value='{{ p.id }}' type='checkbox' class='void'>
-                {% endif %}
-                {{ p.title }}: {{ p.category }}
-                <div class='content'>
-                    {{ p.content }}
-                <div class='author'>{{ p.author }} ({{ p.ip_addr }})</div>
-                </div>
-            </li>
-        {% endfor %}
-    {% if perms.actions.delete_post or perms.actions.change_post %} 
-        <input type='submit' value='submit'>
-    </form>
-    {% endif %}
-    {% else %}
-        <h3>It might be usefull to add some posts ;), don't you find it?</h3>
-    {% endif %}
+<script language='javascript'>
+    function toggle_readme(){
+        readme = document.getElementById('readme');
+        if ( readme.style.display == 'block') readme.style.display = 'none';
+        else readme.style.display = 'block';
+    }
+</script>
+<a href='javascript:void();' onClick="toggle_readme();">Toggle README</a>
+<div id='readme' style='display: none'>
+<h2>English</h2>
+
+    <h3>What is the django-action?</h3>
+
+    <p><b>Django-action</b> is a small and simple application which would help you to implement actions similar to django.contrib.admin case for your custom tasks outside django admin. Also it provides custom form support if you would like to change some data for the queryset instances.</p>
+
+    <h3>Fast use</h3>
+
+    <p>(sample with approval and custom forms you will find withing example app into the repository)</p>
+
+    <p><b><ins>Fast model instances deletion (without form&#8217;s approval)</ins>:</b></p>
+
+    <p><b><ins>Model</ins></b>:</p>
+
+<pre><code>
+from django.db import models
+from apps.files.actions import force_delete_action
+class File(models.Model):    
+    title = models.CharField('Title', max_length=128)
+    file = models.FileField(upload_to='media/files')
+    actions = [force_delete_action, ]
+</code></pre>
+
+    <p><b><ins>django-action (apps.files.actions):</ins></b></p>
+
+<pre><code>
+def force_delete_action(request, qset, model, **kwargs):
+    for q in qset:
+        q.file.delete() #deletes file
+        q.delete() #deletes instance
+    return &#123;'qset': qset&#125;
+force_delete_action.short_description = 'force delete files'
+</code></pre>
+
+    <p><b><ins>Template</ins></b>:</p>
+
+<pre><code>
+&#123;% extends "base.html" %&#125; &#123;% load actiontags %&#125;
+&#123;% block content %&#125;
+    &#123;% if posts %&#125;
+    &#123;# &#123;% get_action_list for 'example.post' as actions %&#125; #&#125; &#123;# works as well as listed below #&#125;
+    &#123;% get_action_list for posts as actions %&#125;
+    &#123;% if actions.object_list %&#125;
+        &#60;form action='&#123;% url url_act actions.action %&#125;' method='post' id='id_action_posts'&#62;
+        &#123;% csrf_token %&#125;
+        &#123;% show_actions actions.object_list %&#125;
+    &#123;% endif %&#125;
+        &#123;% for p in posts %&#125;
+            &#60;li&#62;&#123;% if actions.object_list %&#125;
+                &#60;input name='items' value='&#123;&#123; p.id &#125;&#125;' type='checkbox' class='void'&#62;
+
+                &#123;% endif %&#125;
+                &#123;&#123; p.title &#125;&#125;: &#123;&#123; p.category &#125;&#125;
+                &#60;div class='content'&#62;
+                    &#123;&#123; p.content &#125;&#125;
+                &#60;div class='author'&#62;&#123;&#123; p.author &#125;&#125; (&#123;&#123; p.ip_addr &#125;&#125;)&#60;/div&#62;
+                &#60;/div&#62;
+            &#60;/li&#62;
+        &#123;% endfor %&#125;
+    &#123;% if actions.object_list %&#125;
+        &#60;input type='submit' value='submit'&#62;
+
+    &#60;/form&#62;
+    &#123;% endif %&#125;
+    &#123;% else %&#125;
+        &#60;h3&#62;It might be usefull to add some posts ;), don't you find it?&#60;/h3&#62;
+    &#123;% endif %&#125;
+&#123;% endblock %&#125;
+</code></pre>
+<h2>Russian</h2>
+<h3>Что такое django-action?</h3>
+<p><b>Django-action</b> &#8211; небольшое приложение, которое повторяет возможности actions django.contrib.admin вне django админки.</p>
+<h3>Использование</h3>
+<p>См. выше</p><br clear='all'>
+</div>
+
+<ul>
+    <li><a href='{% url url_viewed %}'>Viewed</a>, sample based on view modification (apps.example.views.viewed)</li>
+    <li><a href='{% url url_viewless %}'>Viewless</a>, non-view based example (apps.example.views.viewless)</li>
+</ul>
 {% endblock %}
