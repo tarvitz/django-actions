@@ -10,7 +10,6 @@ def act(request, app_n_model):
     """ execute chosen action """
     app, model = app_n_model.split('.')
     ct = get_content_type_or_404(app_label=app, model=model)
-    app, model = app_n_model.split('.')
     referer = request.META.get('HTTP_REFERER', '/')
     if request.method == 'POST':
         qset = ct.model_class().objects.filter(pk__in=(request.POST.getlist('items')))
