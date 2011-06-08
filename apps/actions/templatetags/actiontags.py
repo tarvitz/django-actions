@@ -1,7 +1,7 @@
 # coding: utf8
 from django.template import Library, Node, TemplateSyntaxError
 from apps.actions.helpers import get_content_type_or_None
-from apps.actions.helpers import parse_perms
+from apps.actions.helpers import parse_perms, get_description
 
 register = Library()
 
@@ -11,9 +11,20 @@ class GetActionListNode(Node):
         self.varname = varname
     
     def render(self, context):
-        app, model = self.app_n_model[1:-1].split('.')
+        if isinstance(self.app_n_model, str) or\
+            isinstance(self.app_n_model, unicode):
+            action = self.app_n_model[1:-1]
+            app, model = action.split('.')
+        else:
+            inst = self.app_n_model.resolve(context, ignore_failures=True)
+            if hasattr(inst, 'model'):
+                model = inst.model._meta.module_name
+                app = inst.model._meta.app_label
+                action = "%s.%s" % (app, model)
+            else:
+               raise TemplateSyntaxError, "Nor string neither model or queryset was given" 
         user = context['user']
-        ct = get_content_type_or_None(self.app_n_model[1:-1])
+        ct = get_content_type_or_None(app_label=app, model=model)
         if ct:
             model_class = ct.model_class()
             _actions = []
@@ -22,10 +33,10 @@ class GetActionListNode(Node):
                     perms = [p.format(app=app, model=model) for p in model_class.actions[x].has_perms]
                     if user.has_perms(perms):
                         _actions.append((x,
-                            model_class.actions[x].short_description))
+                            get_description(model_class.actions[x])))
                 else:
-                    _actions.append((x, model_class.actions[x].short_description))
-            context[self.varname] = _actions
+                    _actions.append((x, get_description(model_class.actions[x])))
+            context[self.varname] = {'object_list': _actions, 'action': action, }
             return ''
             
         else:
@@ -33,14 +44,19 @@ class GetActionListNode(Node):
             return ''
 
 #get_action_list for 'app.model' as varname
+#get_action_list for queryset as varname
 @register.tag
 def get_action_list(parser, token):
     bits = token.contents.split()
-    if len(bits) != 7:
-        raise TemplateSyntaxError, "USE: {% get_action_list for 'app.model' as varname %}"
-    if bits[1] != 'for' or bits[3] != 'as' or bits[5] != 'with':
-        raise TemplateSyntaxError, "USE {% get_action_list for 'app.model' as varname %}" 
-    return GetActionListNode(bits[2], bits[4])
+    if len(bits) != 5:
+        raise TemplateSyntaxError, 'USE: {% get_action_list for <"app.model"|model|queryset> as varname %}'
+    if bits[1] != 'for' or bits[3] != 'as':
+        raise TemplateSyntaxError, 'USE {% get_action_list for <"app.model"|model|queryset> as varname %}'
+    if "'" in bits[2] or '"' in bits[2]:
+        inst = bits[2]
+    else:
+        inst = parser.compile_filter(bits[2])
+    return GetActionListNode(inst, bits[4])
 
 @register.inclusion_tag('actions_select.html')
 def show_actions(actions):

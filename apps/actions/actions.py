@@ -19,5 +19,3 @@ def common_delete_action(request, qset, model, **kwargs):
     return {'qset': qset }
 common_delete_action.has_perms = ['{app}.delete_{model}', ]
 common_delete_action.short_description = _('delete')
-
-
