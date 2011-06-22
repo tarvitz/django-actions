@@ -36,7 +36,6 @@ def action_formset(request, qset, model, permissions=[]):
         # if we want to provide form.as_ul
         # its better to add forms.MultipleHiddenInput()
         items = forms.ModelMultipleChoiceField(queryset=qset) 
-        #_actions = [(s.short_description, s.short_description) for s in model.actions]
         _actions = []
         for x in range(0, len(model.actions)):
             _actions.append((x, model.actions[x].short_description))
@@ -51,9 +50,31 @@ def action_formset(request, qset, model, permissions=[]):
                     #No action have passed, no action would complete
                     return {'qset': _qset} 
                 action = model.actions[int(action)]
-                return action(self.request, _qset, model, **kwargs)
+                if hasattr(action, 'has_perms'):
+                    if request.user.has_perms(action.has_perms):
+                        return action(self.request, _qset, model, **kwargs)
+                    else:
+                        raise Http404("Permission denied you have not such perms")
+            else:
+                #default permissions
+                app_label = _qset.model._meta.app_label
+                model_ = _qset.model._meta.module_name
+                perm = "{app}.delete_{model};{app}.change_{model}".format(app=app_label,
+                    model=model_)
+                perms = perm.split(';')
+                if request.user.has_perms(perms):
+                    return action(self.request, _qset, model, **kwargs)
+                else:
+                    raise Http404("Permission denied you have not such perms")
             else:
                 raise ObjectDoesNotExist, "form.is_valid should be ran fist"
+        
+        def do_act(self, action, _qset, **kwargs):
+            """ does not check if form is valid """
+            if action == 'None':
+                return {'qset': _qset}
+            action = model.actions[int(action)]
+            return action(self.request, _qset, model, **kwargs)
 
         def __init__(self, *args, **kwargs):
             self.request = request

@@ -22,3 +22,4 @@ def change_post_action(request, qset, model, **kwargs):
                 context_instance=RequestContext(request))}
     return {'qset': qset }
 change_post_action.short_description = _('change post')
+change_post_action.has_perms = ['example.change_post',]

@@ -1,0 +1,27 @@
+{% extends "base.html" %} {% load actiontags %}
+{% block content %}
+    {% if posts %}
+	{# {% get_action_list for 'example.post' as actions %} #} {# works as well as listed below #}
+	{% get_action_list for posts as actions %}
+    {% if actions.object_list %} 
+        <form action='{% url url_act actions.action %}' method='post' id='id_action_posts'>
+        {% csrf_token %}
+		{% show_actions actions.object_list %}
+    {% endif %}
+        {% for p in posts %}
+            <li>{% if actions.object_list %} <input name='items' value='{{ p.id }}' type='checkbox' class='void'>{% endif %}
+                {{ p.title }}: {{ p.category }}
+                <span class='content'>
+                    {{ p.content }}
+                (<span class='author'>{{ p.author }} ({{ p.ip_addr }})</span>)
+                </span>
+            </li>
+        {% endfor %}
+    {% if actions.object_list %} 
+        <input type='submit' value='submit'>
+    </form>
+    {% endif %}
+    {% else %}
+        <h3>It might be usefull to add some posts ;), don't you find it?</h3>
+    {% endif %}
+{% endblock %}
