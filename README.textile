@@ -40,7 +40,7 @@ force_delete_action.short_description = 'force delete files'
     {% if posts %}
     {# {% get_action_list for 'example.post' as actions %} #} {# works as well as listed below #}
     {% get_action_list for posts as actions %}
-    {% if actions %}
+    {% if actions.object_list %}
         <form action='{% url url_act actions.action %}' method='post' id='id_action_posts'>
         {% csrf_token %}
         {% show_actions actions.object_list %}
@@ -56,7 +56,7 @@ force_delete_action.short_description = 'force delete files'
                 </div>
             </li>
         {% endfor %}
-    {% if actions %}
+    {% if actions.object_list %}
         <input type='submit' value='submit'>
     </form>
     {% endif %}
