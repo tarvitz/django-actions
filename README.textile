@@ -6,7 +6,18 @@ h3. What is the django-action?
 
 h3. Fast use
 
-(sample with approval and custom forms you will find withing example app into the repository)
+Sample with approval and custom forms you will find withing example app into the repository. 
+You may run 
+<pre><code>
+$ python manage.py syncdb
+</pre></code>
+To add initial data and then start sample server:
+<pre><code>
+python manage.py runserver localhost:8000
+</pre></code>
+
+Superuser account: super, super
+Guest account: guest, guest
 
 **+Fast model instances deletion (without form's approval)+:**
 
