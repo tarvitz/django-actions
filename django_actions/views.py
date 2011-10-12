@@ -3,8 +3,8 @@
 from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.core.urlresolvers import reverse
-from apps.actions.forms import action_formset
-from apps.actions.helpers import get_content_type_or_404
+from django_actions.forms import action_formset
+from django_actions.helpers import get_content_type_or_404
 
 def act(request, app_n_model):
     """ execute chosen action """

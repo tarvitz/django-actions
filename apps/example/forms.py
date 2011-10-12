@@ -2,7 +2,7 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
-from apps.actions.forms import ActionForm
+from django_actions.forms import ActionForm
 from apps.example.models import Category
 
 class ChangePostActionForm(ActionForm):

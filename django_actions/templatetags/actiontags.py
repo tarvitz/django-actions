@@ -1,7 +1,7 @@
 # coding: utf8
 from django.template import Library, Node, TemplateSyntaxError
-from apps.actions.helpers import get_content_type_or_None
-from apps.actions.helpers import parse_perms, get_description
+from django_actions.helpers import get_content_type_or_None
+from django_actions.helpers import parse_perms, get_description
 
 register = Library()
 

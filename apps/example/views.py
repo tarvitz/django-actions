@@ -3,7 +3,7 @@
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from apps.actions.forms import action_formset
+from django_actions.forms import action_formset
 from apps.example.models import Post
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_protect

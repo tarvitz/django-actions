@@ -2,7 +2,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _, ugettext as _tr
 from django.contrib.auth.models import User
-from apps.actions.actions import common_delete_action
+from django_actions.actions import common_delete_action
 
 class Category(models.Model):
     title = models.CharField(_('Title'), unique=True, max_length=64)

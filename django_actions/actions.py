@@ -3,7 +3,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext as _tr
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.template import RequestContext
 from django.shortcuts import render_to_response
-from apps.actions.forms import ActionApproveForm, ActionForm
+from django_actions.forms import ActionApproveForm, ActionForm
 
 #common actions
 def common_delete_action(request, qset, model, **kwargs):

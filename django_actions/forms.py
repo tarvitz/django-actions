@@ -55,17 +55,17 @@ def action_formset(request, qset, model, permissions=[]):
                         return action(self.request, _qset, model, **kwargs)
                     else:
                         raise Http404("Permission denied you have not such perms")
-            else:
-                #default permissions
-                app_label = _qset.model._meta.app_label
-                model_ = _qset.model._meta.module_name
-                perm = "{app}.delete_{model};{app}.change_{model}".format(app=app_label,
-                    model=model_)
-                perms = perm.split(';')
-                if request.user.has_perms(perms):
-                    return action(self.request, _qset, model, **kwargs)
                 else:
-                    raise Http404("Permission denied you have not such perms")
+                    #default permissions
+                    app_label = _qset.model._meta.app_label
+                    model_ = _qset.model._meta.module_name
+                    perm = "{app}.delete_{model};{app}.change_{model}".format(app=app_label,
+                        model=model_)
+                    perms = perm.split(';')
+                    if request.user.has_perms(perms):
+                        return action(self.request, _qset, model, **kwargs)
+                    else:
+                        raise Http404("Permission denied you have not such perms")
             else:
                 raise ObjectDoesNotExist, "form.is_valid should be ran fist"
         
