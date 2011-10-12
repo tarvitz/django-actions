@@ -10,11 +10,11 @@ Sample with approval and custom forms you will find withing example app into the
 You may run 
 <pre><code>
 $ python manage.py syncdb
-</pre></code>
+</code></pre>
 To add initial data and then start sample server:
 <pre><code>
 python manage.py runserver localhost:8000
-</pre></code>
+</code></pre>
 
 Superuser account: super, super
 Guest account: guest, guest
