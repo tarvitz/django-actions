@@ -1,3 +1,7 @@
+h1. Maintainable status
+
+This is old and in some way ugly-code keeping repository that illustrates simple idea how to apply mass actions upon several entries without getting formsets. Please treat this is like a poor proof-of-concept, yet another thing it uses pretty old django version however you're still able to get through code and pick ideas up.
+
 h2. English
 
 h3. What is the django-action?
